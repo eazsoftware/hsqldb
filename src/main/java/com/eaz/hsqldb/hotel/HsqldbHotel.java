@@ -4,58 +4,113 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigInteger;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashMap;
 import java.util.Random;
 import org.hsqldb.Server;
-import org.hsqldb.util.SqlFile;
-import org.hsqldb.util.SqlToolError;
+import org.hsqldb.cmdline.SqlFile;
+import org.hsqldb.cmdline.SqlToolError;
+
+
 
 /**
  *
  * @author javier
  */
-public class HsqldbHotel 
+public final class HsqldbHotel 
 {
+    public static String URL_SCRIPT_CREATION_DB = "/dbscript/com_eazsoftware_hsqldb_hotel.sql";
+    public static String URL_SCRIPT_DATA_DB = "/dbscript/DATA_com_eazsoftware_hsqldb_hotel.sql";
+    
     private Connection connection = null;
     private Server hsqlServer = null;
 
-    public HsqldbHotel( String strDbName,
+    public HsqldbHotel( String strTypeHSQLDB,
+                        String strDbName,
                         String strUserDb,
-                        String strPwdDb) {
+                        String strPwdDb) throws IOException, SQLException, InterruptedException, SqlToolError {
+        this.startHSQLDBServer(strTypeHSQLDB, strDbName);
+        this.establishDBConnection(strTypeHSQLDB, strDbName, strUserDb, strPwdDb);
+        
+        URL urlLocationScript = this.getClass().getResource(HsqldbHotel.URL_SCRIPT_CREATION_DB);        
+        this.executeFile(urlLocationScript.getFile());
+        urlLocationScript = this.getClass().getResource(HsqldbHotel.URL_SCRIPT_DATA_DB);
+        this.executeFile(urlLocationScript.getFile());
+//        this.createTableDB(strDbName);
+//        this.createDataDB(strDbName);
+        this.query("SELECT * FROM public.\"com_eaz_software_hsqldb_Guest\";");
+        this.query("SELECT * FROM public.\"com_eaz_software_hsqldb_Guest\" WHERE ;");
+    }
+    
+    private void startHSQLDBServer( String strTypeHSQLDB,
+                                    String strDbName) {    
         hsqlServer = new Server();
         hsqlServer.setLogWriter(new PrintWriter(System.out));
         hsqlServer.setSilent(false);
-        hsqlServer.setDatabaseName(0, strDbName);
-        hsqlServer.setDatabasePath(0, "file:" + strDbName);
+        hsqlServer.setDatabaseName(0, strTypeHSQLDB + ":" + strDbName);
         
-        hsqlServer.start();
-
+        hsqlServer.start(); 
+        System.out.println("\n\t*** HSQLServer Started [" + strTypeHSQLDB + ":" + strDbName + "]");
+    }
+    
+    private void establishDBConnection( String strTypeHSQLDB,
+                                        String strDbName,
+                                        String strUserDb,
+                                        String strPwdDb) {
         // making a connection
         try {
             Class.forName("org.hsqldb.jdbcDriver");
-            connection = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/" + strDbName, strUserDb, strPwdDb);
+            connection = DriverManager.getConnection("jdbc:hsqldb:" + strTypeHSQLDB + ":" + strDbName + ";shutdown=true;hsqldb.write_delay_millis=0", strUserDb, strPwdDb);
             connection.setAutoCommit(true);
+            
+            System.out.println("\n\t*** HSQLDB Connection established [jdbc:hsqldb:" + strTypeHSQLDB + ":" + strDbName + ";shutdown=true;hsqldb.write_delay_millis=0]");
         } catch (SQLException sqle) {
             sqle.printStackTrace(System.out);
         } catch (ClassNotFoundException cnfe) {
             cnfe.printStackTrace(System.out);
-        }   
+        }     
     }
     
-    public synchronized void createDB() throws IOException, SQLException, SqlToolError {
-        File file = new File("/home/javier/projects/HSQLDB/src/main/resources/dbscript/com_eazsoftware_hsqldb_hotel.sql");
-        SqlFile sqlFile = new SqlFile(file, true, new HashMap());
-
-        sqlFile.execute(connection, true);
-        //http://stackoverflow.com/questions/2295457/running-a-script-to-create-tables-with-hsqldb 
-        //http://stackoverflow.com/questions/6364171/hsql-question-on-data-being-saved
+//    public synchronized void createTableDB(String strDbName) throws IOException, SQLException, SqlTool.SqlToolException {        
+//
+//        URL urlLocationScript = this.getClass().getResource(HsqldbHotel.URL_SCRIPT_CREATION_DB);
+//        //http://stackoverflow.com/questions/573679/open-resource-with-relative-path-in-java
+//        SqlTool.objectMain( new String[] { strDbName,
+//                                           urlLocationScript.getFile()} );
+//        connection.commit();
+//        //http://stackoverflow.com/questions/2295457/running-a-script-to-create-tables-with-hsqldb 
+//        //http://stackoverflow.com/questions/6364171/hsql-question-on-data-being-saved
+//        //http://www.d.umn.edu/~tcolburn/cs4531/hsqldb_docs/guide/ch07.html
+//
+//        System.out.println("\n\t*** Tables created ["+strDbName+"] ["+urlLocationScript.getFile()+"]");        
+//    }  
     
+//    public synchronized void createDataDB(String strDbName) throws IOException, SQLException, SqlTool.SqlToolException {        
+//        URL urlLocationScript = this.getClass().getResource(HsqldbHotel.URL_SCRIPT_DATA_DB);
+//        //http://stackoverflow.com/questions/573679/open-resource-with-relative-path-in-java
+//        SqlTool.objectMain( new String[] { strDbName,
+//                                           urlLocationScript.getFile()} ); 
+//        connection.commit();
+//        
+//        System.out.println("\n\t*** Data created ["+strDbName+"] ["+urlLocationScript.getFile()+"]");         
+//    }    
+    
+    public synchronized void executeFile(String strURLFile)
+            throws IOException, SQLException, SqlToolError {
+        File file = new File(strURLFile);
+        if (!file.isFile()) {
+            throw new IOException("SQL file not present: "
+                    + file.getAbsolutePath());
+        }
+        
+        SqlFile sqlFile = new SqlFile(file);
+        sqlFile.setConnection(connection);
+        sqlFile.execute();
     }    
     
     public synchronized void query(String expression) throws SQLException {
@@ -66,7 +121,7 @@ public class HsqldbHotel
 
         // repeated calls to execute but we choose to make a new one each time
         rs = st.executeQuery(expression);    // run the query
-
+        
         // do something with the result set.
         dump(rs);
         st.close();    /* NOTE!! if you close a statement the associated ResultSet is
@@ -114,7 +169,12 @@ public class HsqldbHotel
         }
     }    
     
-    public int shutdown() {
+    public int shutdown() throws SQLException {
+        Statement statement = connection.createStatement();    // statements
+        statement.execute("SHUTDOWN");     
+        
+        connection.close();    // if there are no other open connection        
+        
         int iStatusServerStop = hsqlServer.stop();
         hsqlServer = null;
         

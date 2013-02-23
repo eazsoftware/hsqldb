@@ -1,0 +1,34 @@
+[HSQLDB 1.8.0]
+-- Start up with HSQLDB - SQLTOOL 
+-- http://www.d.umn.edu/~tcolburn/cs4531/hsqldb_docs/guide/ch07.html
+1. Copy the file sqltool.rc from the directory src/org/hsqldb/sample of your HSQLDB distribution to your home directory and secure access to it if your home directory is accessible to anybody else
+2. $java -jar $HSQLDB_HOME/lib/hsqldb.jar memdb
+   Where mem is contained in the sqltool.rc file:
+   
+	urlid memdb
+	url jdbc:hsqldb:mem:memdbid
+	username sa
+	password   
+3. sql> \i ../dbscript/com_eazsoftware_hsqldb_hotel.sql
+
+-----------------------------------------------------------   
+-- How to see all the tables in an HSQLDB database?
+-- http://stackoverflow.com/questions/591518/how-to-see-all-the-tables-in-an-hsqldb-database
+SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES  where TABLE_TYPE = 'TABLE';
+
+-- How to see all the tables and columns in an HSQLDB database?
+-- http://stackoverflow.com/questions/591518/how-to-see-all-the-tables-in-an-hsqldb-database
+SELECT TABLE_NAME, COLUMN_NAME, TYPE_NAME, COLUMN_SIZE, DECIMAL_DIGITS, IS_NULLABLE FROM INFORMATION_SCHEMA.SYSTEM_COLUMNS WHERE TABLE_NAME NOT LIKE 'SYSTEM_%';
+
+/home/javier/projects/HSQLDB/src/main/resources/dbscript/com_eazsoftware_hsqldb_hotel.sql
+SELECT * FROM public."com_eaz_software_hsqldb_Guest";
+SELECT * FROM "com_eaz_software_hsqldb_Guest";
+-----------------------------------------------------------
+
+[HSQLDB 2.2.9]
+1. Run the server (with a database)
+$java -cp $HSQLDB_HOME/lib/hsqldb.jar org.hsqldb.server.Server --database.0 file:com_eazsoftware_hsqldb_hotel_mem --dbname.0 xdb
+--The following example of the command for starting the server starts the server with one (default) database with files named "mydb.*" and the public name of "xdb". The public name hides the file names from users.
+
+2. Access to the console (with a database)
+$java -jar $HSQLDB_HOME/lib/sqltool.jar com_eazsoftware_hsqldb_hotel

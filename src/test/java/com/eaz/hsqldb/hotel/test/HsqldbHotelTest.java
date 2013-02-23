@@ -38,14 +38,20 @@ public class HsqldbHotelTest {
     public void hsqlHotelTest() throws SQLException{
         try {
             HsqldbHotel hsqldbHotel 
-                    = new HsqldbHotel("hotel",
-                                      "sa",
-                                      "");
+//                    = new HsqldbHotel( "mem",
+//                                       "com_eazsoftware_hsqldb_hotel_mem",
+//                                       "sa",
+//                                       "");
+                    = new HsqldbHotel( "file",
+                                       "com_eazsoftware_hsqldb_hotel",
+                                       "sa",
+                                       "");            
+            
             //hsqldbHotel.createDB();
-            hsqldbHotel.update("INSERT INTO \"com_eaz_software_hsqldb_Guest\" (ID, \"name_\") values ("+hsqldbHotel.nextRandomBigInteger()+", 'Pepito')");
-            hsqldbHotel.update("INSERT INTO \"com_eaz_software_hsqldb_Guest\" (ID, \"name_\") values ("+hsqldbHotel.nextRandomBigInteger()+", 'Juanito')");
-            hsqldbHotel.query("SELECT * FROM public.\"com_eaz_software_hsqldb_Guest\";");
-            hsqldbHotel.shutdown();
+//            hsqldbHotel.update("INSERT INTO \"com_eaz_software_hsqldb_Guest\" (ID, \"name_\") values ("+hsqldbHotel.nextRandomBigInteger()+", 'Pepito')");
+//            hsqldbHotel.update("INSERT INTO \"com_eaz_software_hsqldb_Guest\" (ID, \"name_\") values ("+hsqldbHotel.nextRandomBigInteger()+", 'Juanito')");
+//            hsqldbHotel.query("SELECT * FROM public.\"com_eaz_software_hsqldb_Guest\";");
+            //hsqldbHotel.shutdown();
         }
         catch (Exception e) {
             System.out.println(e.toString());

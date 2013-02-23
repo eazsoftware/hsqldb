@@ -66,8 +66,3 @@ CREATE TABLE "com_eaz_software_hsqldb_Booking" (
 ALTER TABLE "com_eaz_software_hsqldb_Booking" ADD PRIMARY KEY (ID);
 ALTER TABLE "com_pexsoftware_enterprise_Booking$To$Guest" ADD CONSTRAINT "fk_Booking$To$Guest_BookingID" FOREIGN KEY ("BookingID") REFERENCES "com_eaz_software_hsqldb_Booking"("ID");
 
-
-
-ALTER TABLE Orders
-DROP CONSTRAINT fk_PerOrders
-
