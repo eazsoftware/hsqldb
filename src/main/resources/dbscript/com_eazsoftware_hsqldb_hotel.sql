@@ -27,8 +27,8 @@ CREATE TABLE "com_eaz_software_hsqldb_Area" (
 );
 ALTER TABLE "com_eaz_software_hsqldb_Area" ADD PRIMARY KEY (ID);
 
-DROP TABLE IF EXISTS "com_pexsoftware_enterprise_Booking$To$Guest";
-CREATE TABLE "com_pexsoftware_enterprise_Booking$To$Guest" (
+DROP TABLE IF EXISTS "com_eaz_software_Booking$To$Guest";
+CREATE TABLE "com_eaz_software_Booking$To$Guest" (
     "BookingID" bigint NOT NULL,
     "GuestID" bigint NOT NULL
 );
@@ -39,7 +39,7 @@ CREATE TABLE "com_eaz_software_hsqldb_Guest" (
 	"name_" character varying(255)
 );
 ALTER TABLE "com_eaz_software_hsqldb_Guest" ADD PRIMARY KEY (ID);
-ALTER TABLE "com_pexsoftware_enterprise_Booking$To$Guest" ADD CONSTRAINT "fk_Booking$To$Guest_GuestID" FOREIGN KEY ("GuestID") REFERENCES "com_eaz_software_hsqldb_Guest"("ID");
+ALTER TABLE "com_eaz_software_Booking$To$Guest" ADD CONSTRAINT "fk_Booking$To$Guest_GuestID" FOREIGN KEY ("GuestID") REFERENCES "com_eaz_software_hsqldb_Guest"("ID");
 
 DROP TABLE IF EXISTS "com_eaz_software_hsqldb_RoomStatus";
 CREATE TABLE "com_eaz_software_hsqldb_RoomStatus" (
@@ -64,5 +64,5 @@ CREATE TABLE "com_eaz_software_hsqldb_Booking" (
 	date_ bigint
 );
 ALTER TABLE "com_eaz_software_hsqldb_Booking" ADD PRIMARY KEY (ID);
-ALTER TABLE "com_pexsoftware_enterprise_Booking$To$Guest" ADD CONSTRAINT "fk_Booking$To$Guest_BookingID" FOREIGN KEY ("BookingID") REFERENCES "com_eaz_software_hsqldb_Booking"("ID");
+ALTER TABLE "com_eaz_software_Booking$To$Guest" ADD CONSTRAINT "fk_Booking$To$Guest_BookingID" FOREIGN KEY ("BookingID") REFERENCES "com_eaz_software_hsqldb_Booking"("ID");
 
